@@ -1,1 +1,5 @@
 /.venv
+/_pycache__
+mi_proyecto/__pycache__
+mi_app/__pycache__
+*.pyc
