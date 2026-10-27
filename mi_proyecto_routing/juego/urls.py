@@ -27,4 +27,5 @@ path('habilidades/<int:id>/', views.habilidad_detail_update_delete),
 
 path('personajes/<int:id>/habilidades/', views.habilidades_de_personaje),
 
+# path('habilidades/<int:habilidad_id>/personajes/', views.personajes_con_habilidad),
 ]

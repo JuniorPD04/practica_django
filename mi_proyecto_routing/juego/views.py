@@ -6,7 +6,7 @@ from django.shortcuts import render
 
 import json
 
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 
 from django.views.decorators.csrf import csrf_exempt
 
@@ -53,6 +53,8 @@ def personaje_detail(request, id: int):
 @require_http_methods(['POST'])
 def personajes_create(request):
     datos = json.loads(request.body)
+    if datos.keys() != {'id', 'nombre', 'tipo', 'descripcion', 'ataque', 'defensa', 'estamina', 'habilidades'}:
+        return JsonResponse({'error': 'Datos incompletos o incorrectos'}, status=400)
     datos['id'] = len(PERSONAJES) + 1
     PERSONAJES.append(datos)
     return JsonResponse(datos, status=201)
@@ -74,6 +76,8 @@ def personajes_list_create(request):
 @require_http_methods(['PUT'])
 def personajes_update(request, id: int):
     datos = json.loads(request.body)
+    if datos.keys() != {'nombre', 'tipo', 'descripcion', 'ataque', 'defensa', 'estamina', 'habilidades'}:
+        return JsonResponse({'error': 'Datos incompletos o incorrectos'}, status=400)
     
     encontrado = False
     for i, p in enumerate(PERSONAJES):
@@ -112,8 +116,7 @@ def personajes_delete(request, id:int):
             break
     if not encontrado:
         return JsonResponse({'error': 'Personaje no encontrado'}, status=404)
-    
-    return JsonResponse({'mensaje':'Personaje de id {} eliminado'.format(id)}, status=204)
+    return HttpResponse(status=204)
 
 # y las mismas 5 vistas equivalentes para Habilidad.
 
@@ -160,6 +163,8 @@ def habilidad_detail(request, id: int):
 def habilidad_create(request):
 
     datos = json.loads(request.body)
+    if datos.keys() != {'nombre', 'descripcion', 'incremento_ataque', 'incremento_defensa', 'incremento_estamina'}:
+        return JsonResponse({'error': 'Datos incompletos o incorrectos'}, status=400)
 
     datos['id'] = len(HABILIDADES) + 1
 
@@ -193,6 +198,8 @@ def habilidad_detail_update_delete(request, id: int):
 @require_http_methods(['PUT'])
 def habilidad_update(request, id: int):
     datos = json.loads(request.body)
+    if datos.keys() != {'nombre', 'tipo', 'descripcion', 'incremento_ataque', 'incremento_defensa', 'incremento_estamina'}:
+        return JsonResponse({'error': 'Datos incompletos o incorrectos'}, status=400)
     
     encontrado = False
     for i, h in enumerate(HABILIDADES):
@@ -220,7 +227,7 @@ def habilidad_delete(request, id:int):
     if not encontrado:
         return JsonResponse({'error': 'Habilidad no encontrada'}, status=404)
 
-    return JsonResponse({'mensaje':'Habilidad de id {} eliminada'.format(id)}, status=204)
+    return HttpResponse(status=204)
 
 
 @require_http_methods(['GET'])
@@ -231,3 +238,8 @@ def habilidades_de_personaje(request, id: int):
 
     habilidades_personaje = [h for h in HABILIDADES if h['id'] in personaje.get('habilidades', [])]
     return JsonResponse(habilidades_personaje, safe=False, status=200)
+
+# @require_http_methods(['GET'])
+# def personajes_con_habilidad(request, habilidad_id: int):
+#     personajes_con_habilidad = [p for p in PERSONAJES if habilidad_id in p.get('habilidades', [])]
+#     return JsonResponse(personajes_con_habilidad, safe=False, status=200)
