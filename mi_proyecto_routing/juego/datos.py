@@ -1,4 +1,5 @@
-# juego/datos.py
+# Datos históricos de la actividad anterior. La API ya no importa estas listas.
+# Su contenido se conserva como referencia; los datos actuales están en SQLite.
 
 
 HABILIDADES = [

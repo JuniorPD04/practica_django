@@ -3,3 +3,6 @@
 mi_proyecto/__pycache__
 mi_app/__pycache__
 *.pyc
+__pycache__/
+.env
+.tool-cache/

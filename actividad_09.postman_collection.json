@@ -1,0 +1,638 @@
+{
+  "info": {
+    "name": "09 - Modelo de Base de Datos - Juego",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Contrato ejecutable de la actividad 09. Ejecutar en orden tras migrate y loaddata datos_iniciales. Crea y elimina sus recursos temporales. No modifica los personajes del fixture."
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000/api"
+    },
+    {
+      "key": "personaje_id",
+      "value": ""
+    },
+    {
+      "key": "habilidad_id",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Listar usuarios",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/usuarios"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Sin contraseñas\", () => { pm.expect(pm.response.json()[0]).not.to.have.property(\"contrasena\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Listar personajes",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/personajes"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Lista persistida\", () => { pm.expect(pm.response.json()).to.be.an(\"array\").that.is.not.empty; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Personajes del usuario",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/usuarios/1/personajes"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Perfil del usuario 1\", () => { pm.response.json().forEach(p => pm.expect(p.perfil_id).to.eql(1)); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Detalle con niveles",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/personajes/1"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Habilidades con nivel\", () => { pm.expect(pm.response.json().habilidades[0].nivel).to.be.above(0); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Crear personaje temporal",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"perfil_id\": 1,\n  \"nombre\": \"Prueba Postman\",\n  \"descripcion\": \"Personaje temporal de verificación\",\n  \"ataque\": 20,\n  \"defensa\": 30,\n  \"estamina\": 40\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+              "pm.collectionVariables.set(\"personaje_id\", pm.response.json().id);",
+              "pm.test(\"Atributos iniciales\", () => { pm.expect(pm.response.json().ataque).to.eql(20); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Agregar habilidad nivel 2",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes/{{personaje_id}}/habilidades",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"habilidad_id\": 1,\n  \"nivel\": 2\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+              "pm.test(\"Bonificaciones por nivel\", () => { const p=pm.response.json(); pm.expect(p.ataque).to.eql(40); pm.expect(p.estamina).to.eql(30); pm.expect(p.habilidades[0].nivel).to.eql(2); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Rechazar duplicada",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes/{{personaje_id}}/habilidades",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"habilidad_id\": 1,\n  \"nivel\": 2\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 409\", function () { pm.response.to.have.status(409); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 - Rechazar nivel cero",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes/{{personaje_id}}/habilidades",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"habilidad_id\": 2,\n  \"nivel\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 - Listar habilidades adquiridas",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/personajes/{{personaje_id}}/habilidades"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Una sola habilidad\", () => { pm.expect(pm.response.json()).to.have.lengthOf(1); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 - Editar personaje",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes/{{personaje_id}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Prueba editada\",\n  \"descripcion\": \"Se editan atributos base\",\n  \"ataque\": 50,\n  \"defensa\": 60,\n  \"estamina\": 70\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Base editada y bonificación conservada\", () => { const p=pm.response.json(); pm.expect(p.atributos_base.ataque).to.eql(50); pm.expect(p.ataque).to.eql(70); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 - Quitar habilidad",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{base_url}}/personajes/{{personaje_id}}/habilidades/1"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 204\", function () { pm.response.to.have.status(204); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 - Verificar retiro de bonificación",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/personajes/{{personaje_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Vuelve a atributos base\", () => { const p=pm.response.json(); pm.expect(p.ataque).to.eql(50); pm.expect(p.estamina).to.eql(70); pm.expect(p.habilidades).to.have.lengthOf(0); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 - Quitar habilidad no adquirida",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{base_url}}/personajes/{{personaje_id}}/habilidades/1"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "14 - JSON inválido",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes",
+        "body": {
+          "mode": "raw",
+          "raw": "{",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "15 - Método no permitido",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes/{{personaje_id}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 405\", function () { pm.response.to.have.status(405); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "16 - Borrar personaje temporal",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{base_url}}/personajes/{{personaje_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 204\", function () { pm.response.to.have.status(204); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "17 - Verificar eliminación",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/personajes/{{personaje_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "18 - Usuario inexistente",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/usuarios/999999/personajes"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "19 - Filtrar personajes",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/personajes?tipo=guerrero"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Filtro aplicado\", () => { pm.response.json().forEach(p => pm.expect(p.tipo).to.eql(\"guerrero\")); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "20 - Ordenar catálogo por estamina",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/habilidades?orden=estamina"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Orden descendente\", () => { const v=pm.response.json().map(h=>h.incremento_estamina); pm.expect(v).to.eql([...v].sort((a,b)=>b-a)); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "21 - Crear habilidad temporal",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/habilidades",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Aura Postman\",\n  \"descripcion\": \"Habilidad temporal\",\n  \"incremento_ataque\": 1,\n  \"incremento_defensa\": 2,\n  \"incremento_estamina\": 3\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+              "pm.collectionVariables.set(\"habilidad_id\", pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "22 - Editar habilidad temporal",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/habilidades/{{habilidad_id}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Aura Postman\",\n  \"descripcion\": \"Habilidad temporal\",\n  \"incremento_ataque\": 5,\n  \"incremento_defensa\": 2,\n  \"incremento_estamina\": 3\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Incremento editado\", () => { pm.expect(pm.response.json().incremento_ataque).to.eql(5); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "23 - Detalle de habilidad",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/habilidades/{{habilidad_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "24 - Eliminar habilidad temporal",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{base_url}}/habilidades/{{habilidad_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 204\", function () { pm.response.to.have.status(204); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "25 - Verificar habilidad eliminada",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/habilidades/{{habilidad_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

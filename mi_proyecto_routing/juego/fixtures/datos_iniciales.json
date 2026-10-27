@@ -1,0 +1,323 @@
+[
+  {
+    "model": "juego.usuario",
+    "pk": 1,
+    "fields": {
+      "nombre": "aventurero",
+      "correo": "aventurero@example.com",
+      "contrasena": "pbkdf2_sha256$1500000$BxTDQ9auxK62kdZRpn38ji$bXlWFa6ERwz1Z30w8nxTMY5g5fX5iqfBxrpUBaZqNJc="
+    }
+  },
+  {
+    "model": "juego.perfil",
+    "pk": 1,
+    "fields": {
+      "usuario": 1,
+      "biografia": "Perfil de aventurero en el mundo del juego.",
+      "avatar": "https://example.com/avatar-1.png"
+    }
+  },
+  {
+    "model": "juego.usuario",
+    "pk": 2,
+    "fields": {
+      "nombre": "exploradora",
+      "correo": "exploradora@example.com",
+      "contrasena": "pbkdf2_sha256$1500000$K7Q3wLHDltkBRC8po88cCt$RdxBMfgMku5EB3pQRQqsYUIpVdsG8cpulZov8YDAvEw="
+    }
+  },
+  {
+    "model": "juego.perfil",
+    "pk": 2,
+    "fields": {
+      "usuario": 2,
+      "biografia": "Perfil de exploradora en el mundo del juego.",
+      "avatar": "https://example.com/avatar-2.png"
+    }
+  },
+  {
+    "model": "juego.habilidad",
+    "pk": 1,
+    "fields": {
+      "nombre": "Espadazo",
+      "descripcion": "Un ataque poderoso con la espada.",
+      "incremento_ataque": 10,
+      "incremento_defensa": 0,
+      "incremento_estamina": -5
+    }
+  },
+  {
+    "model": "juego.habilidad",
+    "pk": 2,
+    "fields": {
+      "nombre": "Escudo de Hierro",
+      "descripcion": "Aumenta la defensa del guerrero.",
+      "incremento_ataque": 0,
+      "incremento_defensa": 15,
+      "incremento_estamina": -3
+    }
+  },
+  {
+    "model": "juego.habilidad",
+    "pk": 3,
+    "fields": {
+      "nombre": "Bola de Fuego",
+      "descripcion": "Lanza una bola de fuego que causa gran daño.",
+      "incremento_ataque": 20,
+      "incremento_defensa": 0,
+      "incremento_estamina": -10
+    }
+  },
+  {
+    "model": "juego.habilidad",
+    "pk": 4,
+    "fields": {
+      "nombre": "Curacion Magica",
+      "descripcion": "Recupera energia y fortalece la resistencia.",
+      "incremento_ataque": 0,
+      "incremento_defensa": 10,
+      "incremento_estamina": 15
+    }
+  },
+  {
+    "model": "juego.habilidad",
+    "pk": 5,
+    "fields": {
+      "nombre": "Flecha Veloz",
+      "descripcion": "Dispara una flecha rapida y precisa.",
+      "incremento_ataque": 15,
+      "incremento_defensa": 0,
+      "incremento_estamina": -5
+    }
+  },
+  {
+    "model": "juego.habilidad",
+    "pk": 6,
+    "fields": {
+      "nombre": "Ataque Furtivo",
+      "descripcion": "Realiza un ataque sorpresa contra el enemigo.",
+      "incremento_ataque": 25,
+      "incremento_defensa": -5,
+      "incremento_estamina": -10
+    }
+  },
+  {
+    "model": "juego.habilidad",
+    "pk": 7,
+    "fields": {
+      "nombre": "Piel de Piedra",
+      "descripcion": "Endurece la piel para resistir ataques enemigos.",
+      "incremento_ataque": 0,
+      "incremento_defensa": 25,
+      "incremento_estamina": -8
+    }
+  },
+  {
+    "model": "juego.personaje",
+    "pk": 1,
+    "fields": {
+      "nombre": "Gagh-Ar",
+      "tipo": "guerrero",
+      "descripcion": "Un valiente luchador con gran fuerza física.",
+      "ataque": 80,
+      "defensa": 70,
+      "estamina": 60,
+      "perfil": 1
+    }
+  },
+  {
+    "model": "juego.personaje",
+    "pk": 2,
+    "fields": {
+      "nombre": "Elyra",
+      "tipo": "maga",
+      "descripcion": "Hechicera con gran dominio de la energía mágica.",
+      "ataque": 65,
+      "defensa": 40,
+      "estamina": 90,
+      "perfil": 1
+    }
+  },
+  {
+    "model": "juego.personaje",
+    "pk": 3,
+    "fields": {
+      "nombre": "Thalion",
+      "tipo": "elfo",
+      "descripcion": "Arquero experto con gran precision y agilidad.",
+      "ataque": 75,
+      "defensa": 50,
+      "estamina": 85,
+      "perfil": 1
+    }
+  },
+  {
+    "model": "juego.personaje",
+    "pk": 4,
+    "fields": {
+      "nombre": "Zarek",
+      "tipo": "asesino",
+      "descripcion": "Guerrero sigiloso especializado en ataques rapidos.",
+      "ataque": 90,
+      "defensa": 35,
+      "estamina": 80,
+      "perfil": 1
+    }
+  },
+  {
+    "model": "juego.personaje",
+    "pk": 5,
+    "fields": {
+      "nombre": "Brondar",
+      "tipo": "enano",
+      "descripcion": "Resistente luchador que domina el combate cuerpo a cuerpo.",
+      "ataque": 70,
+      "defensa": 95,
+      "estamina": 55,
+      "perfil": 2
+    }
+  },
+  {
+    "model": "juego.personaje",
+    "pk": 6,
+    "fields": {
+      "nombre": "Lyanna",
+      "tipo": "arquera",
+      "descripcion": "Experta en ataques a distancia y movimientos veloces.",
+      "ataque": 85,
+      "defensa": 45,
+      "estamina": 90,
+      "perfil": 2
+    }
+  },
+  {
+    "model": "juego.personaje",
+    "pk": 7,
+    "fields": {
+      "nombre": "Drogath",
+      "tipo": "orco",
+      "descripcion": "Poderoso combatiente conocido por su fuerza y resistencia.",
+      "ataque": 95,
+      "defensa": 80,
+      "estamina": 65,
+      "perfil": 2
+    }
+  },
+  {
+    "model": "juego.personajehabilidad",
+    "pk": 1,
+    "fields": {
+      "personaje": 1,
+      "habilidad": 1,
+      "nivel": 1
+    }
+  },
+  {
+    "model": "juego.personajehabilidad",
+    "pk": 2,
+    "fields": {
+      "personaje": 1,
+      "habilidad": 2,
+      "nivel": 1
+    }
+  },
+  {
+    "model": "juego.personajehabilidad",
+    "pk": 3,
+    "fields": {
+      "personaje": 2,
+      "habilidad": 2,
+      "nivel": 1
+    }
+  },
+  {
+    "model": "juego.personajehabilidad",
+    "pk": 4,
+    "fields": {
+      "personaje": 3,
+      "habilidad": 5,
+      "nivel": 1
+    }
+  },
+  {
+    "model": "juego.personajehabilidad",
+    "pk": 5,
+    "fields": {
+      "personaje": 3,
+      "habilidad": 4,
+      "nivel": 1
+    }
+  },
+  {
+    "model": "juego.personajehabilidad",
+    "pk": 6,
+    "fields": {
+      "personaje": 4,
+      "habilidad": 6,
+      "nivel": 1
+    }
+  },
+  {
+    "model": "juego.personajehabilidad",
+    "pk": 7,
+    "fields": {
+      "personaje": 4,
+      "habilidad": 5,
+      "nivel": 1
+    }
+  },
+  {
+    "model": "juego.personajehabilidad",
+    "pk": 8,
+    "fields": {
+      "personaje": 5,
+      "habilidad": 2,
+      "nivel": 1
+    }
+  },
+  {
+    "model": "juego.personajehabilidad",
+    "pk": 9,
+    "fields": {
+      "personaje": 5,
+      "habilidad": 7,
+      "nivel": 1
+    }
+  },
+  {
+    "model": "juego.personajehabilidad",
+    "pk": 10,
+    "fields": {
+      "personaje": 6,
+      "habilidad": 5,
+      "nivel": 1
+    }
+  },
+  {
+    "model": "juego.personajehabilidad",
+    "pk": 11,
+    "fields": {
+      "personaje": 6,
+      "habilidad": 6,
+      "nivel": 1
+    }
+  },
+  {
+    "model": "juego.personajehabilidad",
+    "pk": 12,
+    "fields": {
+      "personaje": 7,
+      "habilidad": 1,
+      "nivel": 1
+    }
+  },
+  {
+    "model": "juego.personajehabilidad",
+    "pk": 13,
+    "fields": {
+      "personaje": 7,
+      "habilidad": 7,
+      "nivel": 1
+    }
+  }
+]

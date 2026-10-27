@@ -1,0 +1,343 @@
+{
+  "herramienta": "Newman (colecci?n Postman v2.1)",
+  "fecha_local": "2026-10-26T23:43:01.588000-05:00",
+  "servidor": "http://127.0.0.1:8000/api",
+  "base_de_datos": "SQLite local real; no mocks",
+  "solicitudes": {
+    "total": 25,
+    "pending": 0,
+    "failed": 0
+  },
+  "aserciones": {
+    "total": 37,
+    "pending": 0,
+    "failed": 0
+  },
+  "codigo_salida": 0,
+  "fallos": [],
+  "detalle": [
+    {
+      "nombre": "01 - Listar usuarios",
+      "metodo": "GET",
+      "estado_http": 200,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "correcta": true
+        },
+        {
+          "nombre": "Sin contraseñas",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "02 - Listar personajes",
+      "metodo": "GET",
+      "estado_http": 200,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "correcta": true
+        },
+        {
+          "nombre": "Lista persistida",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "03 - Personajes del usuario",
+      "metodo": "GET",
+      "estado_http": 200,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "correcta": true
+        },
+        {
+          "nombre": "Perfil del usuario 1",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "04 - Detalle con niveles",
+      "metodo": "GET",
+      "estado_http": 200,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "correcta": true
+        },
+        {
+          "nombre": "Habilidades con nivel",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "05 - Crear personaje temporal",
+      "metodo": "POST",
+      "estado_http": 201,
+      "aserciones": [
+        {
+          "nombre": "HTTP 201",
+          "correcta": true
+        },
+        {
+          "nombre": "Atributos iniciales",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "06 - Agregar habilidad nivel 2",
+      "metodo": "POST",
+      "estado_http": 201,
+      "aserciones": [
+        {
+          "nombre": "HTTP 201",
+          "correcta": true
+        },
+        {
+          "nombre": "Bonificaciones por nivel",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "07 - Rechazar duplicada",
+      "metodo": "POST",
+      "estado_http": 409,
+      "aserciones": [
+        {
+          "nombre": "HTTP 409",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "08 - Rechazar nivel cero",
+      "metodo": "POST",
+      "estado_http": 400,
+      "aserciones": [
+        {
+          "nombre": "HTTP 400",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "09 - Listar habilidades adquiridas",
+      "metodo": "GET",
+      "estado_http": 200,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "correcta": true
+        },
+        {
+          "nombre": "Una sola habilidad",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "10 - Editar personaje",
+      "metodo": "PUT",
+      "estado_http": 200,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "correcta": true
+        },
+        {
+          "nombre": "Base editada y bonificación conservada",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "11 - Quitar habilidad",
+      "metodo": "DELETE",
+      "estado_http": 204,
+      "aserciones": [
+        {
+          "nombre": "HTTP 204",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "12 - Verificar retiro de bonificación",
+      "metodo": "GET",
+      "estado_http": 200,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "correcta": true
+        },
+        {
+          "nombre": "Vuelve a atributos base",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "13 - Quitar habilidad no adquirida",
+      "metodo": "DELETE",
+      "estado_http": 404,
+      "aserciones": [
+        {
+          "nombre": "HTTP 404",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "14 - JSON inválido",
+      "metodo": "POST",
+      "estado_http": 400,
+      "aserciones": [
+        {
+          "nombre": "HTTP 400",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "15 - Método no permitido",
+      "metodo": "PATCH",
+      "estado_http": 405,
+      "aserciones": [
+        {
+          "nombre": "HTTP 405",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "16 - Borrar personaje temporal",
+      "metodo": "DELETE",
+      "estado_http": 204,
+      "aserciones": [
+        {
+          "nombre": "HTTP 204",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "17 - Verificar eliminación",
+      "metodo": "GET",
+      "estado_http": 404,
+      "aserciones": [
+        {
+          "nombre": "HTTP 404",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "18 - Usuario inexistente",
+      "metodo": "GET",
+      "estado_http": 404,
+      "aserciones": [
+        {
+          "nombre": "HTTP 404",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "19 - Filtrar personajes",
+      "metodo": "GET",
+      "estado_http": 200,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "correcta": true
+        },
+        {
+          "nombre": "Filtro aplicado",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "20 - Ordenar catálogo por estamina",
+      "metodo": "GET",
+      "estado_http": 200,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "correcta": true
+        },
+        {
+          "nombre": "Orden descendente",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "21 - Crear habilidad temporal",
+      "metodo": "POST",
+      "estado_http": 201,
+      "aserciones": [
+        {
+          "nombre": "HTTP 201",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "22 - Editar habilidad temporal",
+      "metodo": "PUT",
+      "estado_http": 200,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "correcta": true
+        },
+        {
+          "nombre": "Incremento editado",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "23 - Detalle de habilidad",
+      "metodo": "GET",
+      "estado_http": 200,
+      "aserciones": [
+        {
+          "nombre": "HTTP 200",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "24 - Eliminar habilidad temporal",
+      "metodo": "DELETE",
+      "estado_http": 204,
+      "aserciones": [
+        {
+          "nombre": "HTTP 204",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "25 - Verificar habilidad eliminada",
+      "metodo": "GET",
+      "estado_http": 404,
+      "aserciones": [
+        {
+          "nombre": "HTTP 404",
+          "correcta": true
+        }
+      ]
+    }
+  ]
+}
