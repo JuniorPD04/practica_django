@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Habilidad, Perfil, Personaje, PersonajeHabilidad, Usuario
+from .models import Habilidad, Perfil, Personaje, PersonajeHabilidad, RequestLog, Usuario
 
 
 class PersonajeHabilidadInline(admin.TabularInline):
@@ -17,3 +17,14 @@ class PersonajeAdmin(admin.ModelAdmin):
 
 
 admin.site.register([Usuario, Perfil, Habilidad, PersonajeHabilidad])
+
+
+@admin.register(RequestLog)
+class RequestLogAdmin(admin.ModelAdmin):
+    list_display = ('id', 'method', 'path', 'ip', 'called_at')
+    list_filter = ('method',)
+    search_fields = ('path', 'ip')
+    readonly_fields = ('method', 'path', 'ip', 'called_at')
+
+    def has_add_permission(self, request):
+        return False

@@ -1,0 +1,1368 @@
+{
+  "info": {
+    "name": "10 - Controllers, Validators y Middlewares - Juego",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Ejecutar en orden con Collection Runner. Requiere migrate, datos_iniciales y DEBUG=True. Valida CRUD, errores por campo, sanitización recursiva y persistencia de logs de cada llamada. Crea y elimina sus recursos temporales. No altera el fixture. Los logs se conservan como evidencia. base_url incluye /api; perfil_id=1 pertenece al fixture. Al interrumpir pueden quedar recursos temporales."
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000/api"
+    },
+    {
+      "key": "personaje_id",
+      "value": ""
+    },
+    {
+      "key": "habilidad_id",
+      "value": ""
+    },
+    {
+      "key": "logs_pendientes",
+      "value": "[]"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Listar usuarios",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/usuarios"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Sin contraseñas\", () => { pm.expect(pm.response.json()[0]).not.to.have.property(\"contrasena\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Listar personajes",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/personajes"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Lista persistida\", () => { pm.expect(pm.response.json()).to.be.an(\"array\").that.is.not.empty; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Personajes del usuario",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/usuarios/1/personajes"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Personajes del usuario sin FK expuesta\", () => { const ps = pm.response.json(); pm.expect(ps).to.be.an(\"array\").that.is.not.empty; ps.forEach(p => { pm.expect(p.id).to.be.a(\"number\"); pm.expect(p).not.to.have.property(\"perfil_id\"); }); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Detalle con niveles",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/personajes/1"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Habilidades con nivel\", () => { pm.expect(pm.response.json().habilidades[0].nivel).to.be.above(0); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Crear personaje temporal",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"perfil_id\": 1,\n  \"nombre\": \"Prueba Postman\",\n  \"descripcion\": \"Personaje temporal de verificación\",\n  \"ataque\": 20,\n  \"defensa\": 30,\n  \"estamina\": 40,\n  \"tipo\": \"guerrero\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+              "pm.collectionVariables.set(\"personaje_id\", pm.response.json().id);",
+              "pm.test(\"Atributos iniciales\", () => { pm.expect(pm.response.json().ataque).to.eql(20); });",
+              "pm.test(\"Sanitiza FK real y conserva contenido\", () => { const p = pm.response.json(); pm.expect(p).not.to.have.property(\"perfil_id\"); pm.expect(p.id).to.be.a(\"number\"); pm.expect(p.atributos_base).to.eql({ataque:20,defensa:30,estamina:40}); pm.expect(p.habilidades).to.eql([]); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Agregar habilidad nivel 2",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes/{{personaje_id}}/habilidades",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"habilidad_id\": 1,\n  \"nivel\": 2\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+              "pm.test(\"Bonificaciones por nivel\", () => { const p=pm.response.json(); pm.expect(p.ataque).to.eql(40); pm.expect(p.estamina).to.eql(30); pm.expect(p.habilidades[0].nivel).to.eql(2); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Rechazar duplicada",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes/{{personaje_id}}/habilidades",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"habilidad_id\": 1,\n  \"nivel\": 2\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 409\", function () { pm.response.to.have.status(409); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 - Rechazar nivel cero",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes/{{personaje_id}}/habilidades",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"habilidad_id\": 2,\n  \"nivel\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 - Listar habilidades adquiridas",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/personajes/{{personaje_id}}/habilidades"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Una sola habilidad\", () => { pm.expect(pm.response.json()).to.have.lengthOf(1); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 - PUT personaje fuera de rango",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes/{{personaje_id}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Prueba Postman\",\n  \"tipo\": \"guerrero\",\n  \"descripcion\": \"Temporal\",\n  \"ataque\": 101,\n  \"defensa\": 30,\n  \"estamina\": 40\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"Error claro para ataque\", () => { const e = pm.response.json().errors.find(e => e.field === \"ataque\"); pm.expect(e).to.be.an(\"object\"); pm.expect(e.messages).to.be.an(\"array\").that.is.not.empty; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 - PUT personaje sin nombre",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes/{{personaje_id}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tipo\": \"guerrero\",\n  \"descripcion\": \"Temporal\",\n  \"ataque\": 20,\n  \"defensa\": 30,\n  \"estamina\": 40\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"Error claro para nombre\", () => { const e = pm.response.json().errors.find(e => e.field === \"nombre\"); pm.expect(e).to.be.an(\"object\"); pm.expect(e.messages).to.be.an(\"array\").that.is.not.empty; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 - PUT personaje tipo incorrecto",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes/{{personaje_id}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Prueba Postman\",\n  \"tipo\": \"guerrero\",\n  \"descripcion\": \"Temporal\",\n  \"ataque\": 20,\n  \"defensa\": \"30\",\n  \"estamina\": 40\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"Error claro para defensa\", () => { const e = pm.response.json().errors.find(e => e.field === \"defensa\"); pm.expect(e).to.be.an(\"object\"); pm.expect(e.messages).to.be.an(\"array\").that.is.not.empty; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 - Confirmar que PUT inválido no escribe",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/personajes/{{personaje_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Base y nombre sin modificar\", () => { const p=pm.response.json(); pm.expect(p.nombre).to.eql(\"Prueba Postman\"); pm.expect(p.atributos_base.ataque).to.eql(20); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "14 - Asignación sin habilidad_id",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes/{{personaje_id}}/habilidades",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"Error claro para habilidad_id\", () => { const e = pm.response.json().errors.find(e => e.field === \"habilidad_id\"); pm.expect(e).to.be.an(\"object\"); pm.expect(e.messages).to.be.an(\"array\").that.is.not.empty; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "15 - Asignación con nivel string",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes/{{personaje_id}}/habilidades",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"habilidad_id\": 2,\n  \"nivel\": \"2\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"Error claro para nivel\", () => { const e = pm.response.json().errors.find(e => e.field === \"nivel\"); pm.expect(e).to.be.an(\"object\"); pm.expect(e.messages).to.be.an(\"array\").that.is.not.empty; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "16 - Editar personaje",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes/{{personaje_id}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Prueba editada\",\n  \"descripcion\": \"Se editan atributos base\",\n  \"ataque\": 50,\n  \"defensa\": 60,\n  \"estamina\": 70,\n  \"tipo\": \"guerrero\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Base editada y bonificación conservada\", () => { const p=pm.response.json(); pm.expect(p.atributos_base.ataque).to.eql(50); pm.expect(p.ataque).to.eql(70); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "17 - Quitar habilidad",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{base_url}}/personajes/{{personaje_id}}/habilidades/1"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 204\", function () { pm.response.to.have.status(204); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "18 - Verificar retiro de bonificación",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/personajes/{{personaje_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Vuelve a atributos base\", () => { const p=pm.response.json(); pm.expect(p.ataque).to.eql(50); pm.expect(p.estamina).to.eql(70); pm.expect(p.habilidades).to.have.lengthOf(0); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "19 - Quitar habilidad no adquirida",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{base_url}}/personajes/{{personaje_id}}/habilidades/1"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "20 - JSON inválido",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes",
+        "body": {
+          "mode": "raw",
+          "raw": "{",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "21 - Método no permitido",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes/{{personaje_id}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 405\", function () { pm.response.to.have.status(405); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "22 - Borrar personaje temporal",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{base_url}}/personajes/{{personaje_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 204\", function () { pm.response.to.have.status(204); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "23 - Verificar eliminación",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/personajes/{{personaje_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "24 - Usuario inexistente",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/usuarios/999999/personajes"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "25 - Filtrar personajes",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/personajes?tipo=guerrero"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Filtro aplicado\", () => { pm.response.json().forEach(p => pm.expect(p.tipo).to.eql(\"guerrero\")); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "26 - Ordenar catálogo por estamina",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/habilidades?orden=estamina"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Orden descendente\", () => { const v=pm.response.json().map(h=>h.incremento_estamina); pm.expect(v).to.eql([...v].sort((a,b)=>b-a)); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "27 - Crear habilidad temporal",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/habilidades",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Aura Postman\",\n  \"descripcion\": \"Habilidad temporal\",\n  \"incremento_ataque\": 1,\n  \"incremento_defensa\": 2,\n  \"incremento_estamina\": 3\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+              "pm.collectionVariables.set(\"habilidad_id\", pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "28 - PUT habilidad con booleano",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/habilidades/{{habilidad_id}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Aura Postman\",\n  \"descripcion\": \"Temporal\",\n  \"incremento_ataque\": true,\n  \"incremento_defensa\": 2,\n  \"incremento_estamina\": 3\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"Error claro para incremento_ataque\", () => { const e = pm.response.json().errors.find(e => e.field === \"incremento_ataque\"); pm.expect(e).to.be.an(\"object\"); pm.expect(e.messages).to.be.an(\"array\").that.is.not.empty; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "29 - PUT habilidad sin descripción",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/habilidades/{{habilidad_id}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Aura Postman\",\n  \"incremento_ataque\": 1,\n  \"incremento_defensa\": 2,\n  \"incremento_estamina\": 3\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"Error claro para descripcion\", () => { const e = pm.response.json().errors.find(e => e.field === \"descripcion\"); pm.expect(e).to.be.an(\"object\"); pm.expect(e.messages).to.be.an(\"array\").that.is.not.empty; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "30 - Editar habilidad temporal",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/habilidades/{{habilidad_id}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Aura Postman\",\n  \"descripcion\": \"Habilidad temporal\",\n  \"incremento_ataque\": 5,\n  \"incremento_defensa\": 2,\n  \"incremento_estamina\": 3\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Incremento editado\", () => { pm.expect(pm.response.json().incremento_ataque).to.eql(5); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "31 - Detalle de habilidad",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/habilidades/{{habilidad_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "32 - Eliminar habilidad temporal",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{base_url}}/habilidades/{{habilidad_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 204\", function () { pm.response.to.have.status(204); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "33 - Verificar habilidad eliminada",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/habilidades/{{habilidad_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "34 - POST personaje campo faltante",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"perfil_id\": 1,\n  \"tipo\": \"guerrero\",\n  \"descripcion\": \"Temporal\",\n  \"ataque\": 20,\n  \"defensa\": 30,\n  \"estamina\": 40\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"Error claro para nombre\", () => { const e = pm.response.json().errors.find(e => e.field === \"nombre\"); pm.expect(e).to.be.an(\"object\"); pm.expect(e.messages).to.be.an(\"array\").that.is.not.empty; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "35 - POST personaje sin tipo",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"perfil_id\": 1,\n  \"nombre\": \"Prueba Postman\",\n  \"descripcion\": \"Temporal\",\n  \"ataque\": 20,\n  \"defensa\": 30,\n  \"estamina\": 40\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"Error claro para tipo\", () => { const e = pm.response.json().errors.find(e => e.field === \"tipo\"); pm.expect(e).to.be.an(\"object\"); pm.expect(e.messages).to.be.an(\"array\").that.is.not.empty; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "36 - POST personaje tipo desconocido",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"perfil_id\": 1,\n  \"nombre\": \"Prueba Postman\",\n  \"tipo\": \"dragon\",\n  \"descripcion\": \"Temporal\",\n  \"ataque\": 20,\n  \"defensa\": 30,\n  \"estamina\": 40\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"Error claro para tipo\", () => { const e = pm.response.json().errors.find(e => e.field === \"tipo\"); pm.expect(e).to.be.an(\"object\"); pm.expect(e.messages).to.be.an(\"array\").that.is.not.empty; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "37 - POST personaje número como string",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"perfil_id\": 1,\n  \"nombre\": \"Prueba Postman\",\n  \"tipo\": \"guerrero\",\n  \"descripcion\": \"Temporal\",\n  \"ataque\": \"20\",\n  \"defensa\": 30,\n  \"estamina\": 40\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"Error claro para ataque\", () => { const e = pm.response.json().errors.find(e => e.field === \"ataque\"); pm.expect(e).to.be.an(\"object\"); pm.expect(e.messages).to.be.an(\"array\").that.is.not.empty; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "38 - POST personaje rango mayor a 100",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"perfil_id\": 1,\n  \"nombre\": \"Prueba Postman\",\n  \"tipo\": \"guerrero\",\n  \"descripcion\": \"Temporal\",\n  \"ataque\": 20,\n  \"defensa\": 101,\n  \"estamina\": 40\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"Error claro para defensa\", () => { const e = pm.response.json().errors.find(e => e.field === \"defensa\"); pm.expect(e).to.be.an(\"object\"); pm.expect(e.messages).to.be.an(\"array\").that.is.not.empty; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "39 - POST personaje rango negativo",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"perfil_id\": 1,\n  \"nombre\": \"Prueba Postman\",\n  \"tipo\": \"guerrero\",\n  \"descripcion\": \"Temporal\",\n  \"ataque\": 20,\n  \"defensa\": 30,\n  \"estamina\": -1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"Error claro para estamina\", () => { const e = pm.response.json().errors.find(e => e.field === \"estamina\"); pm.expect(e).to.be.an(\"object\"); pm.expect(e.messages).to.be.an(\"array\").that.is.not.empty; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "40 - POST personaje perfil_id booleano",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"perfil_id\": true,\n  \"nombre\": \"Prueba Postman\",\n  \"tipo\": \"guerrero\",\n  \"descripcion\": \"Temporal\",\n  \"ataque\": 20,\n  \"defensa\": 30,\n  \"estamina\": 40\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"Error claro para perfil_id\", () => { const e = pm.response.json().errors.find(e => e.field === \"perfil_id\"); pm.expect(e).to.be.an(\"object\"); pm.expect(e.messages).to.be.an(\"array\").that.is.not.empty; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "41 - POST personaje campo desconocido",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"perfil_id\": 1,\n  \"nombre\": \"Prueba Postman\",\n  \"tipo\": \"guerrero\",\n  \"descripcion\": \"Temporal\",\n  \"ataque\": 20,\n  \"defensa\": 30,\n  \"estamina\": 40,\n  \"admin\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"Error claro para __all__\", () => { const e = pm.response.json().errors.find(e => e.field === \"__all__\"); pm.expect(e).to.be.an(\"object\"); pm.expect(e.messages).to.be.an(\"array\").that.is.not.empty; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "42 - POST habilidad tipo incorrecto",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/habilidades",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Aura Postman\",\n  \"descripcion\": \"Temporal\",\n  \"incremento_ataque\": 1.5,\n  \"incremento_defensa\": 2,\n  \"incremento_estamina\": 3\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"Error claro para incremento_ataque\", () => { const e = pm.response.json().errors.find(e => e.field === \"incremento_ataque\"); pm.expect(e).to.be.an(\"object\"); pm.expect(e.messages).to.be.an(\"array\").that.is.not.empty; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "43 - POST habilidad campo faltante",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/habilidades",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"descripcion\": \"Temporal\",\n  \"incremento_ataque\": 1,\n  \"incremento_defensa\": 2,\n  \"incremento_estamina\": 3\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"Error claro para nombre\", () => { const e = pm.response.json().errors.find(e => e.field === \"nombre\"); pm.expect(e).to.be.an(\"object\"); pm.expect(e.messages).to.be.an(\"array\").that.is.not.empty; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "44 - POST JSON que no es objeto",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/personajes",
+        "body": {
+          "mode": "raw",
+          "raw": "[]",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"Error claro para __all__\", () => { const e = pm.response.json().errors.find(e => e.field === \"__all__\"); pm.expect(e).to.be.an(\"object\"); pm.expect(e.messages).to.be.an(\"array\").that.is.not.empty; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "45 - POST Content-Type incorrecto",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "text/plain"
+          }
+        ],
+        "url": "{{base_url}}/personajes",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 415\", () => pm.response.to.have.status(415));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "46 - Comprobar registros de GET POST PUT DELETE y errores en BD",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/request-logs"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Cada llamada tiene su fila persistida en request_log\", () => {",
+              "  const rows = pm.response.json(); const expected = JSON.parse(pm.collectionVariables.get(\"logs_pendientes\"));",
+              "  pm.expect(rows).to.be.an(\"array\").that.is.not.empty;",
+              "  expected.forEach(e => { const row = rows.find(r => r.id === e.id); pm.expect(row, JSON.stringify(e)).to.be.an(\"object\"); pm.expect(row.method).to.eql(e.method); pm.expect(row.path).to.eql(e.path); pm.expect(row).to.have.property(\"ip\"); pm.expect(row.called_at).to.be.a(\"string\"); });",
+              "});",
+              "pm.collectionVariables.set(\"logs_pendientes\", \"[]\");"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (pm.info.iteration === 0 && pm.info.requestName.startsWith(\"01 -\")) {",
+          "  pm.collectionVariables.set(\"logs_pendientes\", \"[]\");",
+          "  pm.collectionVariables.unset(\"personaje_id\");",
+          "  pm.collectionVariables.unset(\"habilidad_id\");",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const logId = pm.response.headers.get(\"X-Request-Log-Id\");",
+          "pm.test(\"Logging: identificador de registro persistido\", () => pm.expect(logId).to.match(/^\\d+$/));",
+          "const pendientes = JSON.parse(pm.collectionVariables.get(\"logs_pendientes\") || \"[]\");",
+          "pendientes.push({id: Number(logId), method: pm.request.method, path: require(\"url\").parse(pm.variables.replaceIn(pm.request.url.toString())).pathname});",
+          "pm.collectionVariables.set(\"logs_pendientes\", JSON.stringify(pendientes));",
+          "if ((pm.response.headers.get(\"Content-Type\") || \"\").includes(\"application/json\")) {",
+          "  pm.test(\"Sanitización: ninguna clave termina en _id, en ningún nivel\", () => {",
+          "    function revisar(v) { if (Array.isArray(v)) v.forEach(revisar); else if (v && typeof v === \"object\") Object.keys(v).forEach(k => { pm.expect(k.endsWith(\"_id\"), k).to.eql(false); revisar(v[k]); }); }",
+          "    revisar(pm.response.json());",
+          "  });",
+          "}",
+          "if (pm.response.code === 204) pm.test(\"DELETE conserva respuesta vacía\", () => pm.expect(pm.response.text()).to.eql(\"\"));"
+        ]
+      }
+    }
+  ]
+}

@@ -10,7 +10,7 @@ class JuegoAPITests(TestCase):
 
     def crear_personaje(self, **cambios):
         datos = {
-            'perfil_id': 1, 'nombre': 'Prueba', 'descripcion': 'Personaje de prueba',
+            'perfil_id': 1, 'nombre': 'Prueba', 'tipo': 'guerrero', 'descripcion': 'Personaje de prueba',
             'ataque': 20, 'defensa': 30, 'estamina': 40,
         }
         datos.update(cambios)
@@ -55,7 +55,7 @@ class JuegoAPITests(TestCase):
         self.assertEqual(Client().get(f'/api/personajes/{id}').json()['nombre'], 'Prueba')
 
     def test_put_modifica_base_sin_borrar_habilidades(self):
-        datos = {'nombre': 'Renombrado', 'descripcion': 'Nueva', 'ataque': 100, 'defensa': 80, 'estamina': 90}
+        datos = {'nombre': 'Renombrado', 'tipo': 'guerrero', 'descripcion': 'Nueva', 'ataque': 100, 'defensa': 80, 'estamina': 90}
         respuesta = self.client.put('/api/personajes/1', datos, content_type='application/json')
         self.assertEqual(respuesta.status_code, 200)
         self.assertEqual(respuesta.json()['ataque'], 110)
@@ -155,7 +155,7 @@ class JuegoAPITests(TestCase):
                      '/api/habilidades', '/api/habilidades/1'):
             with self.subTest(ruta=ruta):
                 self.assertEqual(self.client.get(ruta).json(), self.client.get(ruta + '/').json())
-        datos = {'perfil_id': 1, 'nombre': 'Barra', 'descripcion': 'Prueba', 'ataque': 1, 'defensa': 1, 'estamina': 1}
+        datos = {'perfil_id': 1, 'nombre': 'Barra', 'tipo': 'guerrero', 'descripcion': 'Prueba', 'ataque': 1, 'defensa': 1, 'estamina': 1}
         self.assertEqual(self.client.post('/api/personajes/', datos, content_type='application/json').status_code, 201)
 
     def test_metodos_no_permitidos(self):

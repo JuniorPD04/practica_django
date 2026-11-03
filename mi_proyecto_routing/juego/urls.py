@@ -5,6 +5,7 @@ from . import views
 
 # Ambas variantes funcionan sin redirigir los cuerpos de POST/PUT.
 rutas = [
+    ('request-logs', views.request_logs, 'request-logs'),
     ('usuarios', views.usuarios_list, 'usuarios'),
     ('usuarios/<int:id>/personajes', views.personajes_de_usuario, 'personajes-usuario'),
     ('personajes', views.personajes_list_create, 'personajes'),

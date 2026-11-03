@@ -1,0 +1,290 @@
+{
+  "actividad": 10,
+  "fecha_local": "2026-11-03T01:27:25.660000-05:00",
+  "zona_horaria": "America/Lima",
+  "ejecutor": "Newman",
+  "destino": "http://127.0.0.1:8001/api",
+  "base_de_datos": "SQLite temporal aislada de la base de trabajo",
+  "solicitudes": 46,
+  "aserciones": 171,
+  "fallos": 0,
+  "exit_code": 0,
+  "ejecuciones": [
+    {
+      "nombre": "01 - Listar usuarios",
+      "metodo": "GET",
+      "status": 200,
+      "aserciones": 4
+    },
+    {
+      "nombre": "02 - Listar personajes",
+      "metodo": "GET",
+      "status": 200,
+      "aserciones": 4
+    },
+    {
+      "nombre": "03 - Personajes del usuario",
+      "metodo": "GET",
+      "status": 200,
+      "aserciones": 4
+    },
+    {
+      "nombre": "04 - Detalle con niveles",
+      "metodo": "GET",
+      "status": 200,
+      "aserciones": 4
+    },
+    {
+      "nombre": "05 - Crear personaje temporal",
+      "metodo": "POST",
+      "status": 201,
+      "aserciones": 5
+    },
+    {
+      "nombre": "06 - Agregar habilidad nivel 2",
+      "metodo": "POST",
+      "status": 201,
+      "aserciones": 4
+    },
+    {
+      "nombre": "07 - Rechazar duplicada",
+      "metodo": "POST",
+      "status": 409,
+      "aserciones": 3
+    },
+    {
+      "nombre": "08 - Rechazar nivel cero",
+      "metodo": "POST",
+      "status": 400,
+      "aserciones": 3
+    },
+    {
+      "nombre": "09 - Listar habilidades adquiridas",
+      "metodo": "GET",
+      "status": 200,
+      "aserciones": 4
+    },
+    {
+      "nombre": "10 - PUT personaje fuera de rango",
+      "metodo": "PUT",
+      "status": 400,
+      "aserciones": 4
+    },
+    {
+      "nombre": "11 - PUT personaje sin nombre",
+      "metodo": "PUT",
+      "status": 400,
+      "aserciones": 4
+    },
+    {
+      "nombre": "12 - PUT personaje tipo incorrecto",
+      "metodo": "PUT",
+      "status": 400,
+      "aserciones": 4
+    },
+    {
+      "nombre": "13 - Confirmar que PUT inválido no escribe",
+      "metodo": "GET",
+      "status": 200,
+      "aserciones": 4
+    },
+    {
+      "nombre": "14 - Asignación sin habilidad_id",
+      "metodo": "POST",
+      "status": 400,
+      "aserciones": 4
+    },
+    {
+      "nombre": "15 - Asignación con nivel string",
+      "metodo": "POST",
+      "status": 400,
+      "aserciones": 4
+    },
+    {
+      "nombre": "16 - Editar personaje",
+      "metodo": "PUT",
+      "status": 200,
+      "aserciones": 4
+    },
+    {
+      "nombre": "17 - Quitar habilidad",
+      "metodo": "DELETE",
+      "status": 204,
+      "aserciones": 3
+    },
+    {
+      "nombre": "18 - Verificar retiro de bonificación",
+      "metodo": "GET",
+      "status": 200,
+      "aserciones": 4
+    },
+    {
+      "nombre": "19 - Quitar habilidad no adquirida",
+      "metodo": "DELETE",
+      "status": 404,
+      "aserciones": 3
+    },
+    {
+      "nombre": "20 - JSON inválido",
+      "metodo": "POST",
+      "status": 400,
+      "aserciones": 3
+    },
+    {
+      "nombre": "21 - Método no permitido",
+      "metodo": "PATCH",
+      "status": 405,
+      "aserciones": 3
+    },
+    {
+      "nombre": "22 - Borrar personaje temporal",
+      "metodo": "DELETE",
+      "status": 204,
+      "aserciones": 3
+    },
+    {
+      "nombre": "23 - Verificar eliminación",
+      "metodo": "GET",
+      "status": 404,
+      "aserciones": 3
+    },
+    {
+      "nombre": "24 - Usuario inexistente",
+      "metodo": "GET",
+      "status": 404,
+      "aserciones": 3
+    },
+    {
+      "nombre": "25 - Filtrar personajes",
+      "metodo": "GET",
+      "status": 200,
+      "aserciones": 4
+    },
+    {
+      "nombre": "26 - Ordenar catálogo por estamina",
+      "metodo": "GET",
+      "status": 200,
+      "aserciones": 4
+    },
+    {
+      "nombre": "27 - Crear habilidad temporal",
+      "metodo": "POST",
+      "status": 201,
+      "aserciones": 3
+    },
+    {
+      "nombre": "28 - PUT habilidad con booleano",
+      "metodo": "PUT",
+      "status": 400,
+      "aserciones": 4
+    },
+    {
+      "nombre": "29 - PUT habilidad sin descripción",
+      "metodo": "PUT",
+      "status": 400,
+      "aserciones": 4
+    },
+    {
+      "nombre": "30 - Editar habilidad temporal",
+      "metodo": "PUT",
+      "status": 200,
+      "aserciones": 4
+    },
+    {
+      "nombre": "31 - Detalle de habilidad",
+      "metodo": "GET",
+      "status": 200,
+      "aserciones": 3
+    },
+    {
+      "nombre": "32 - Eliminar habilidad temporal",
+      "metodo": "DELETE",
+      "status": 204,
+      "aserciones": 3
+    },
+    {
+      "nombre": "33 - Verificar habilidad eliminada",
+      "metodo": "GET",
+      "status": 404,
+      "aserciones": 3
+    },
+    {
+      "nombre": "34 - POST personaje campo faltante",
+      "metodo": "POST",
+      "status": 400,
+      "aserciones": 4
+    },
+    {
+      "nombre": "35 - POST personaje sin tipo",
+      "metodo": "POST",
+      "status": 400,
+      "aserciones": 4
+    },
+    {
+      "nombre": "36 - POST personaje tipo desconocido",
+      "metodo": "POST",
+      "status": 400,
+      "aserciones": 4
+    },
+    {
+      "nombre": "37 - POST personaje número como string",
+      "metodo": "POST",
+      "status": 400,
+      "aserciones": 4
+    },
+    {
+      "nombre": "38 - POST personaje rango mayor a 100",
+      "metodo": "POST",
+      "status": 400,
+      "aserciones": 4
+    },
+    {
+      "nombre": "39 - POST personaje rango negativo",
+      "metodo": "POST",
+      "status": 400,
+      "aserciones": 4
+    },
+    {
+      "nombre": "40 - POST personaje perfil_id booleano",
+      "metodo": "POST",
+      "status": 400,
+      "aserciones": 4
+    },
+    {
+      "nombre": "41 - POST personaje campo desconocido",
+      "metodo": "POST",
+      "status": 400,
+      "aserciones": 4
+    },
+    {
+      "nombre": "42 - POST habilidad tipo incorrecto",
+      "metodo": "POST",
+      "status": 400,
+      "aserciones": 4
+    },
+    {
+      "nombre": "43 - POST habilidad campo faltante",
+      "metodo": "POST",
+      "status": 400,
+      "aserciones": 4
+    },
+    {
+      "nombre": "44 - POST JSON que no es objeto",
+      "metodo": "POST",
+      "status": 400,
+      "aserciones": 4
+    },
+    {
+      "nombre": "45 - POST Content-Type incorrecto",
+      "metodo": "POST",
+      "status": 415,
+      "aserciones": 3
+    },
+    {
+      "nombre": "46 - Comprobar registros de GET POST PUT DELETE y errores en BD",
+      "metodo": "GET",
+      "status": 200,
+      "aserciones": 4
+    }
+  ]
+}

@@ -3,6 +3,16 @@ from django.contrib.auth.hashers import identify_hasher, make_password
 from django.db import models
 
 
+class RequestLog(models.Model):
+    method = models.CharField(max_length=10)
+    path = models.CharField(max_length=255)
+    ip = models.GenericIPAddressField(null=True, blank=True)
+    called_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'request_log'
+
+
 class Usuario(models.Model):
     # Usuario del juego, independiente del usuario de autenticación de Django.
     nombre = models.CharField(max_length=100, unique=True)
