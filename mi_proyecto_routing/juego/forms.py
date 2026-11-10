@@ -38,7 +38,7 @@ class CamposEstrictos:
 
 
 class PersonajeForm(CamposEstrictos, forms.ModelForm):
-    nombre = TextoJSON(max_length=100)
+    nombre = TextoJSON(max_length=100, required=False)
     tipo = forms.ChoiceField(choices=TIPOS_VALIDOS)
     descripcion = TextoJSON()
     ataque = EnteroJSON(min_value=0, max_value=100)
@@ -47,7 +47,7 @@ class PersonajeForm(CamposEstrictos, forms.ModelForm):
 
     class Meta:
         model = Personaje
-        fields = ['nombre', 'tipo', 'descripcion', 'ataque', 'defensa', 'estamina']
+        fields = ['tipo', 'descripcion', 'ataque', 'defensa', 'estamina']
 
 
 class PersonajeCreateForm(PersonajeForm):

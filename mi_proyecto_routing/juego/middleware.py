@@ -45,7 +45,7 @@ class SanitizeIdsMiddleware:
     def _strip_id_suffixes(self, data):
         if isinstance(data, dict):
             return {key: self._strip_id_suffixes(value) for key, value in data.items()
-                    if not key.endswith('_id')}
+                    if not key.endswith('id')}
         if isinstance(data, list):
             return [self._strip_id_suffixes(item) for item in data]
         return data
