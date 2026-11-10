@@ -2,7 +2,6 @@ from django.urls import path
 
 from . import views
 
-
 # Ambas variantes funcionan sin redirigir los cuerpos de POST/PUT.
 rutas = [
     ('request-logs', views.request_logs, 'request-logs'),
@@ -16,7 +15,10 @@ rutas = [
     ('habilidades/<int:id>', views.habilidad_detail_update_delete, 'habilidad'),
 ]
 
-urlpatterns = []
+urlpatterns = [
+    path('me/', views.me),
+]
+    
 for ruta, vista, nombre in rutas:
     urlpatterns.append(path(ruta, vista, name=nombre))
     urlpatterns.append(path(ruta + '/', vista))

@@ -7,3 +7,4 @@ from .personajes import (
 )
 from .usuarios import personajes_de_usuario, usuarios_list
 from .logs import request_logs
+from .autenticador import me

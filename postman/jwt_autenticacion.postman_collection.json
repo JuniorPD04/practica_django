@@ -1,0 +1,365 @@
+{
+    "variable":  [
+                     {
+                         "key":  "base_url",
+                         "type":  "string",
+                         "value":  "http://127.0.0.1:8000/api"
+                     },
+                     {
+                         "key":  "admin_username",
+                         "type":  "string",
+                         "value":  "admin"
+                     },
+                     {
+                         "key":  "admin_password",
+                         "type":  "string",
+                         "value":  "admin"
+                     },
+                     {
+                         "key":  "access_token",
+                         "type":  "string",
+                         "value":  ""
+                     },
+                     {
+                         "key":  "refresh_token",
+                         "type":  "string",
+                         "value":  ""
+                     },
+                     {
+                         "key":  "user_username",
+                         "type":  "string",
+                         "value":  ""
+                     },
+                     {
+                         "key":  "user_password",
+                         "type":  "string",
+                         "value":  ""
+                     },
+                     {
+                         "key":  "user_access_token",
+                         "type":  "string",
+                         "value":  ""
+                     }
+                 ],
+    "info":  {
+                 "description":  "Coleccion manual sin carpetas ni scripts. Login admin/admin. Copia access y refresh a access_token y refresh_token. Para roles, completa user_username y user_password y copia su access a user_access_token. La ruta protegida por roles es /api/usuarios/ y devuelve usuarios del juego. Requiere perfiles ADMIN y USER y has_permission dentro de IsAdmin. Ver JWT_README.md.",
+                 "name":  "11 - JWT - Autenticacion y autorizacion - Juego",
+                 "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+             },
+    "item":  [
+                 {
+                     "request":  {
+                                     "body":  {
+                                                  "raw":  "{\r\n    \"password\":  \"{{admin_password}}\",\r\n    \"username\":  \"{{admin_username}}\"\r\n}",
+                                                  "options":  {
+                                                                  "raw":  {
+                                                                              "language":  "json"
+                                                                          }
+                                                              },
+                                                  "mode":  "raw"
+                                              },
+                                     "method":  "POST",
+                                     "url":  "{{base_url}}/login/",
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    }
+                                                ],
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              }
+                                 },
+                     "name":  "01 - Login admin"
+                 },
+                 {
+                     "request":  {
+                                     "body":  {
+                                                  "raw":  "{\r\n    \"password\":  \"clave-incorrecta-prueba-jwt\",\r\n    \"username\":  \"{{admin_username}}\"\r\n}",
+                                                  "options":  {
+                                                                  "raw":  {
+                                                                              "language":  "json"
+                                                                          }
+                                                              },
+                                                  "mode":  "raw"
+                                              },
+                                     "method":  "POST",
+                                     "url":  "{{base_url}}/login/",
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    }
+                                                ],
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              }
+                                 },
+                     "name":  "02 - Login con clave incorrecta"
+                 },
+                 {
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  "{{base_url}}/me/",
+                                     "header":  [
+
+                                                ],
+                                     "auth":  {
+                                                  "bearer":  [
+                                                                 {
+                                                                     "key":  "token",
+                                                                     "type":  "string",
+                                                                     "value":  "{{access_token}}"
+                                                                 }
+                                                             ],
+                                                  "type":  "bearer"
+                                              }
+                                 },
+                     "name":  "03 - Mi perfil con token"
+                 },
+                 {
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  "{{base_url}}/me/",
+                                     "header":  [
+
+                                                ],
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              }
+                                 },
+                     "name":  "04 - Mi perfil sin token"
+                 },
+                 {
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  "{{base_url}}/me/",
+                                     "header":  [
+
+                                                ],
+                                     "auth":  {
+                                                  "bearer":  [
+                                                                 {
+                                                                     "key":  "token",
+                                                                     "type":  "string",
+                                                                     "value":  "token.jwt.invalido"
+                                                                 }
+                                                             ],
+                                                  "type":  "bearer"
+                                              }
+                                 },
+                     "name":  "05 - Mi perfil con token invalido"
+                 },
+                 {
+                     "request":  {
+                                     "body":  {
+                                                  "raw":  "{\r\n    \"refresh\":  \"{{refresh_token}}\"\r\n}",
+                                                  "options":  {
+                                                                  "raw":  {
+                                                                              "language":  "json"
+                                                                          }
+                                                              },
+                                                  "mode":  "raw"
+                                              },
+                                     "method":  "POST",
+                                     "url":  "{{base_url}}/refresh/",
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    }
+                                                ],
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              }
+                                 },
+                     "name":  "06 - Renovar access"
+                 },
+                 {
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  "{{base_url}}/me/",
+                                     "header":  [
+
+                                                ],
+                                     "auth":  {
+                                                  "bearer":  [
+                                                                 {
+                                                                     "key":  "token",
+                                                                     "type":  "string",
+                                                                     "value":  "{{access_token}}"
+                                                                 }
+                                                             ],
+                                                  "type":  "bearer"
+                                              }
+                                 },
+                     "name":  "07 - Mi perfil con access renovado"
+                 },
+                 {
+                     "request":  {
+                                     "body":  {
+                                                  "raw":  "{\r\n    \"refresh\":  \"token.jwt.invalido\"\r\n}",
+                                                  "options":  {
+                                                                  "raw":  {
+                                                                              "language":  "json"
+                                                                          }
+                                                              },
+                                                  "mode":  "raw"
+                                              },
+                                     "method":  "POST",
+                                     "url":  "{{base_url}}/refresh/",
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    }
+                                                ],
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              }
+                                 },
+                     "name":  "08 - Refresh invalido"
+                 },
+                 {
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  "{{base_url}}/me/",
+                                     "header":  [
+
+                                                ],
+                                     "auth":  {
+                                                  "bearer":  [
+                                                                 {
+                                                                     "key":  "token",
+                                                                     "type":  "string",
+                                                                     "value":  "{{refresh_token}}"
+                                                                 }
+                                                             ],
+                                                  "type":  "bearer"
+                                              }
+                                 },
+                     "name":  "09 - Refresh usado como access"
+                 },
+                 {
+                     "request":  {
+                                     "body":  {
+                                                  "raw":  "{\r\n    \"password\":  \"{{user_password}}\",\r\n    \"username\":  \"{{user_username}}\"\r\n}",
+                                                  "options":  {
+                                                                  "raw":  {
+                                                                              "language":  "json"
+                                                                          }
+                                                              },
+                                                  "mode":  "raw"
+                                              },
+                                     "method":  "POST",
+                                     "url":  "{{base_url}}/login/",
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    }
+                                                ],
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              }
+                                 },
+                     "name":  "10 - Login USER"
+                 },
+                 {
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  "{{base_url}}/me/",
+                                     "header":  [
+
+                                                ],
+                                     "auth":  {
+                                                  "bearer":  [
+                                                                 {
+                                                                     "key":  "token",
+                                                                     "type":  "string",
+                                                                     "value":  "{{user_access_token}}"
+                                                                 }
+                                                             ],
+                                                  "type":  "bearer"
+                                              }
+                                 },
+                     "name":  "11 - Confirmar rol USER"
+                 },
+                 {
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  "{{base_url}}/usuarios/",
+                                     "header":  [
+
+                                                ],
+                                     "auth":  {
+                                                  "bearer":  [
+                                                                 {
+                                                                     "key":  "token",
+                                                                     "type":  "string",
+                                                                     "value":  "{{user_access_token}}"
+                                                                 }
+                                                             ],
+                                                  "type":  "bearer"
+                                              }
+                                 },
+                     "name":  "12 - USER no puede listar usuarios"
+                 },
+                 {
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  "{{base_url}}/me/",
+                                     "header":  [
+
+                                                ],
+                                     "auth":  {
+                                                  "bearer":  [
+                                                                 {
+                                                                     "key":  "token",
+                                                                     "type":  "string",
+                                                                     "value":  "{{access_token}}"
+                                                                 }
+                                                             ],
+                                                  "type":  "bearer"
+                                              }
+                                 },
+                     "name":  "13 - Confirmar rol ADMIN"
+                 },
+                 {
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  "{{base_url}}/usuarios/",
+                                     "header":  [
+
+                                                ],
+                                     "auth":  {
+                                                  "bearer":  [
+                                                                 {
+                                                                     "key":  "token",
+                                                                     "type":  "string",
+                                                                     "value":  "{{access_token}}"
+                                                                 }
+                                                             ],
+                                                  "type":  "bearer"
+                                              }
+                                 },
+                     "name":  "14 - ADMIN puede listar usuarios"
+                 },
+                 {
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  "{{base_url}}/usuarios/",
+                                     "header":  [
+
+                                                ],
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              }
+                                 },
+                     "name":  "15 - Usuarios sin token"
+                 }
+             ],
+    "auth":  {
+                 "type":  "noauth"
+             }
+}

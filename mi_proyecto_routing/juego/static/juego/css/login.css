@@ -1,0 +1,5 @@
+﻿body { font-family: system-ui, sans-serif; margin: 32px 16px; }
+main { max-width: 420px; margin: auto; }
+label, input { display: block; margin-bottom: 12px; }
+input { box-sizing: border-box; width: 100%; padding: 8px; }
+button { padding: 8px 12px; margin: 8px 8px 8px 0; cursor: pointer; }
