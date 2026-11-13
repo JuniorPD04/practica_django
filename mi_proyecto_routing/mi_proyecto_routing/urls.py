@@ -18,8 +18,11 @@ from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import TemplateView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from .views import authors
 
 urlpatterns = [
+    path('authors', authors, name='authors'),
+    path('authors/', authors),
     path('', TemplateView.as_view(template_name='juego/index.html'), name='login'),
     path('admin/', admin.site.urls),
     path('api/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),

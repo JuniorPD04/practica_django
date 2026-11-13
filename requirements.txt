@@ -1,1 +1,1 @@
-Django==6.1.1
+-r mi_proyecto_routing/requirements.txt
