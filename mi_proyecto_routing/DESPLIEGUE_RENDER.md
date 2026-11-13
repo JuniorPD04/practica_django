@@ -2,6 +2,8 @@
 
 Este repositorio contiene dos proyectos Django. El Blueprint `render.yaml`, ubicado en la raíz del repositorio, despliega **mi_proyecto_routing**. Su `rootDir` es `mi_proyecto_routing`, y su módulo WSGI es `mi_proyecto_routing.wsgi:application`.
 
+Servicio publicado: https://routing-api-kde6.onrender.com. Se verificó `/authors` con HTTP 200 y los tres integrantes correctos el 13/11/2026.
+
 ## 1. Subir los cambios a GitHub
 
 Desde la raíz del repositorio, en PowerShell:
@@ -47,7 +49,7 @@ Después del primer despliegue correcto, elimina **juntas** `DJANGO_SUPERUSER_US
 
 ## 3. Verificar la entrega
 
-Abre `https://TU-SERVICIO.onrender.com/authors` sin token. Debe devolver:
+Abre `https://routing-api-kde6.onrender.com/authors` sin token. Debe devolver:
 
 ```json
 [
@@ -70,15 +72,15 @@ El frontend existente en `/` también usa el backend publicado, pero su desplieg
 
 ## 4. PDF para Teams
 
-En `entrega/` están las 15 respuestas y el PDF con portada e integrantes. La primera versión indica que falta la URL pública. **Regenera el PDF con la URL real antes de entregarlo**:
+En `entrega/` están las 15 respuestas y el PDF con portada, integrantes y la URL pública actualizada. Incluye la captura original `imagen_autores.png` como evidencia. El cuestionario usa una sola columna, tipografía Times, texto negro, párrafos justificados, interlineado 1.5 y guiones cortos, con una presentación académica adaptada a lo solicitado. Para volver a generarlo, conserva la imagen junto al generador:
 
 ```powershell
 # Desde la raíz del repositorio; la librería del PDF no es dependencia del servidor.
 .\.venv\Scripts\python.exe -m pip install -r mi_proyecto_routing/entrega/requirements.txt
-.\.venv\Scripts\python.exe mi_proyecto_routing/entrega/generar_pdf.py --url https://TU-SERVICIO.onrender.com
+.\.venv\Scripts\python.exe mi_proyecto_routing/entrega/generar_pdf.py --url https://routing-api-kde6.onrender.com
 ```
 
-Entrega en Teams `mi_proyecto_routing/entrega/Perez_Junior_Despliegue.pdf`, la URL pública y el enlace al repositorio. Las capturas son opcionales. El PDF no afirma que el servicio esté desplegado antes de realizar esa verificación.
+Entrega en Teams `mi_proyecto_routing/entrega/Perez_Junior_Despliegue.pdf`, la URL pública y el enlace al repositorio. Las capturas son opcionales. El endpoint público de autores ya fue verificado; completa también las pruebas autenticadas con tu cuenta ADMIN.
 
 ## 5. Desarrollo y comprobaciones locales
 

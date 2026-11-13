@@ -1,0 +1,743 @@
+{
+  "info": {
+    "_postman_id": "e5aa942a-f540-4053-b80c-d47833cbf251",
+    "name": "12 - Despliegue Django en Render - API Juego",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Verificación del despliegue de mi_proyecto_routing. Importa este JSON y configura base_url (sin /api ni barra final), username y password de la cuenta Django ADMIN. Ejecuta en orden. El login y refresh guardan los tokens automáticamente en variables de colección. Las contraseñas y tokens se entregan vacíos. No exportes ni compartas valores reales. Los IDs 1 presuponen el seed. expect_debug=false para Render; true para desarrollo. No se crean, actualizan ni eliminan datos del juego: la única creación propuesta se rechaza por validación. El middleware sí guarda logs de las solicitudes. No se exige id en respuestas porque el middleware actual lo elimina. Ver ACTIVIDAD_12_README.md."
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://routing-api-kde6.onrender.com",
+      "type": "string"
+    },
+    {
+      "key": "username",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "usuario_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "personaje_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "habilidad_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "expect_debug",
+      "value": "false",
+      "type": "string"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const base = pm.variables.get(\"base_url\");",
+          "if (!base || !/^https?:\\/\\/[^\\s]+$/.test(base) || /\\/$/.test(base) || /\\/api$/.test(base)) { throw new Error(\"Configura base_url con la URL base sin /api ni barra final.\"); }"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Autores públicos del equipo",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/authors",
+        "description": "Estado esperado: 200. Los IDs de consulta presuponen el seed del taller.",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Integrantes y códigos correctos\", () => pm.expect(pm.response.json()).to.deep.equal([{\"nombre\": \"Junior Perez Davila\", \"codigo\": \"407721\"}, {\"nombre\": \"Claudia Libertad Quispe Terrones\", \"codigo\": \"407719\"}, {\"nombre\": \"Samuel Andres Zona Malaver\", \"codigo\": \"385387\"}]));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Autores con barra final",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/authors/",
+        "description": "Estado esperado: 200. Los IDs de consulta presuponen el seed del taller.",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Respuesta de tipo lista\", () => pm.expect(pm.response.json()).to.be.an(\"array\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Mi perfil sin token es rechazado",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/me/",
+        "description": "Estado esperado: 401. Los IDs de consulta presuponen el seed del taller.",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 401\", () => pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Usuarios sin token es rechazado",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/usuarios/",
+        "description": "Estado esperado: 401. Los IDs de consulta presuponen el seed del taller.",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 401\", () => pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Login ADMIN y guardar tokens",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/login/",
+        "description": "Estado esperado: 200. Los IDs de consulta presuponen el seed del taller.",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.unset(\"access_token\"); pm.collectionVariables.unset(\"refresh_token\");",
+              "const username = pm.variables.get(\"username\"), password = pm.variables.get(\"password\");",
+              "if (!username || !password) { throw new Error(\"Completa username y password con la cuenta ADMIN de Django antes del login.\"); }",
+              "pm.request.body.update(JSON.stringify({username, password}));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "if (pm.response.code === 200) {",
+              "  const data = pm.response.json();",
+              "  pm.test(\"JWT access y refresh recibidos\", () => { pm.expect(data.access).to.be.a(\"string\").and.not.empty; pm.expect(data.refresh).to.be.a(\"string\").and.not.empty; });",
+              "  if (data.access && data.refresh) { pm.collectionVariables.set(\"access_token\", data.access); pm.collectionVariables.set(\"refresh_token\", data.refresh); }",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Mi perfil con JWT",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/me/",
+        "description": "Estado esperado: 200. Los IDs de consulta presuponen el seed del taller."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Cuenta y rol ADMIN\", () => { const data = pm.response.json(); pm.expect(data.username).to.eql(pm.variables.get(\"username\")); pm.expect(data.role).to.eql(\"ADMIN\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Usuarios del juego como ADMIN",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/usuarios/",
+        "description": "Estado esperado: 200. Los IDs de consulta presuponen el seed del taller."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Respuesta de tipo lista\", () => pm.expect(pm.response.json()).to.be.an(\"array\"));",
+              "pm.test(\"No se publican contraseñas\", () => pm.response.json().forEach(row => { pm.expect(row).not.to.have.property(\"contrasena\"); pm.expect(row).not.to.have.property(\"password\"); }));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 - Personajes de un usuario",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/usuarios/{{usuario_id}}/personajes",
+        "description": "Estado esperado: 200. Los IDs de consulta presuponen el seed del taller."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Respuesta de tipo lista\", () => pm.expect(pm.response.json()).to.be.an(\"array\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 - Listar personajes",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/personajes",
+        "description": "Estado esperado: 200. Los IDs de consulta presuponen el seed del taller."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Respuesta de tipo lista\", () => pm.expect(pm.response.json()).to.be.an(\"array\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 - Filtrar personajes guerreros",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/personajes?tipo=guerrero",
+        "description": "Estado esperado: 200. Los IDs de consulta presuponen el seed del taller."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Respuesta de tipo lista\", () => pm.expect(pm.response.json()).to.be.an(\"array\"));",
+              "pm.test(\"Filtro por tipo\", () => pm.response.json().forEach(row => pm.expect(row.tipo.toLowerCase()).to.eql(\"guerrero\")));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 - Detalle de un personaje",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/personajes/{{personaje_id}}",
+        "description": "Estado esperado: 200. Los IDs de consulta presuponen el seed del taller."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Atributos y habilidades\", () => { const data = pm.response.json(); pm.expect(data).to.have.property(\"atributos_base\"); pm.expect(data.habilidades).to.be.an(\"array\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 - Habilidades de un personaje",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/personajes/{{personaje_id}}/habilidades",
+        "description": "Estado esperado: 200. Los IDs de consulta presuponen el seed del taller."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Respuesta de tipo lista\", () => pm.expect(pm.response.json()).to.be.an(\"array\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 - Listar habilidades",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/habilidades",
+        "description": "Estado esperado: 200. Los IDs de consulta presuponen el seed del taller."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Respuesta de tipo lista\", () => pm.expect(pm.response.json()).to.be.an(\"array\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "14 - Filtrar habilidades por nombre",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/habilidades?nombre=Espadazo",
+        "description": "Estado esperado: 200. Los IDs de consulta presuponen el seed del taller."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Respuesta de tipo lista\", () => pm.expect(pm.response.json()).to.be.an(\"array\"));",
+              "pm.test(\"Filtro por nombre\", () => pm.response.json().forEach(row => pm.expect(row.nombre.toLowerCase()).to.include(\"espadazo\")));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "15 - Detalle de una habilidad",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/habilidades/{{habilidad_id}}",
+        "description": "Estado esperado: 200. Los IDs de consulta presuponen el seed del taller."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Nombre y bonificación presentes\", () => { const data = pm.response.json(); pm.expect(data.nombre).to.be.a(\"string\"); pm.expect(data.incremento_ataque).to.be.a(\"number\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "16 - Renovar y guardar access",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/refresh/",
+        "description": "Estado esperado: 200. Los IDs de consulta presuponen el seed del taller.",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "if (pm.response.code === 200) { const data = pm.response.json(); pm.test(\"Access renovado\", () => pm.expect(data.access).to.be.a(\"string\").and.not.empty); if (data.access) pm.collectionVariables.set(\"access_token\", data.access); if (data.refresh) pm.collectionVariables.set(\"refresh_token\", data.refresh); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "17 - Mi perfil con access renovado",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/me/",
+        "description": "Estado esperado: 200. Los IDs de consulta presuponen el seed del taller."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Usuario autenticado\", () => pm.expect(pm.response.json().username).to.eql(pm.variables.get(\"username\")));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "18 - Access inválido es rechazado",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/me/",
+        "description": "Estado esperado: 401. Los IDs de consulta presuponen el seed del taller.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "token-invalido",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 401\", () => pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "19 - Refresh inválido es rechazado",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/refresh/",
+        "description": "Estado esperado: 401. Los IDs de consulta presuponen el seed del taller.",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"refresh\": \"token-invalido\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 401\", () => pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "20 - Personaje inexistente",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/personajes/9223372036854775807",
+        "description": "Estado esperado: 404. Los IDs de consulta presuponen el seed del taller."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "21 - Validación rechaza ataque negativo",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/personajes",
+        "description": "Estado esperado: 400. Los IDs de consulta presuponen el seed del taller.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"perfil_id\": 1,\n  \"nombre\": \"Prueba inválida Postman\",\n  \"tipo\": \"guerrero\",\n  \"descripcion\": \"Debe rechazarse sin crear registros\",\n  \"ataque\": -1,\n  \"defensa\": 20,\n  \"estamina\": 30\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"Error asociado a ataque\", () => pm.expect(pm.response.json().errors.some(error => error.field === \"ataque\")).to.eql(true));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "22 - Logs ocultos en producción",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/request-logs",
+        "description": "Producción (expect_debug=false): 404. Desarrollo (expect_debug=true): 200."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const expected = String(pm.variables.get(\"expect_debug\")).toLowerCase() === \"true\" ? 200 : 404;",
+              "pm.test(\"Logs según DEBUG\", () => pm.response.to.have.status(expected));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
